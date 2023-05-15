@@ -34,9 +34,9 @@ func NewKNN() *KNN {
 }
 func NewKNN2() *KNN {
 	var data models.Data
-	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/TA2-Concurrente/main/src/resources/dataset/Reporte_Proyecto_APROBADO.csv")
+	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/depression-model-knn/master/src/resources/data-f.csv")
 	knn := NewKNN()
-	knn.Training(data.Data[2:])
+	knn.Training(data.Data[1:])
 	return knn
 }
 
@@ -235,10 +235,17 @@ func (knn *KNN) Predict(variance string, totalDistance string, movementTime stri
 	return result
 }
 
-func (knn *KNN) Predicciones(data []models.RowData) []models.RowData {
+/* func (knn *KNN) Predicciones(data []models.RowData) []models.RowData {
 	for d, _ := range data {
 		data[d].Result = knn.Predict(data[d].Variance, data[d].TotalDistance, data[d].MovementTime, data[d].AverageSpeed, data[d].TestScore, 1)
 	}
+	println("Prediciendo...")
+	return data
+} */
+
+func (knn *KNN) Prediccion(data models.RowData) models.RowData {
+
+	data.Result = knn.Predict(data.Variance, data.TotalDistance, data.MovementTime, data.AverageSpeed, data.TestScore, 1)
 	println("Prediciendo...")
 	return data
 }

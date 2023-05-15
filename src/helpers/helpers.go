@@ -14,7 +14,7 @@ func ReadCSVFromUrl(url string) (models.Data, error) {
 	reader := csv.NewReader(csvFile.Body)
 	reader.LazyQuotes = true
 	reader.FieldsPerRecord = -1
-	reader.Comma = ','
+	reader.Comma = ';'
 	for {
 		line, error := reader.Read()
 		if error == io.EOF {
