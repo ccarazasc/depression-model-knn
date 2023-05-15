@@ -24,11 +24,15 @@ jobs:
     - name: Test
       run: go test
       
-    - name: Deploy to Azure
-      uses: Azure/webapps-deploy@v2
-      with:
-        # Name of the Azure Web App
-        app-name: go-azure-appservice
-        # Applies to Web App only: Path to package or folder. *.zip, *.war, *.jar or a folder to deploy
-        package: build/
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7EEB232CE44845A28A4DB9DF7AF002E2 }} 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to Azure
+        uses: Azure/webapps-deploy@v2
+        with:
+          # Name of the Azure Web App
+          app-name: add-mental-knn-ml
+          # Applies to Web App only: Path to package or folder. *.zip, *.war, *.jar or a folder to deploy
+          package: build/
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7EEB232CE44845A28A4DB9DF7AF002E2 }} 
