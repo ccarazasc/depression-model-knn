@@ -15,7 +15,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api/").Subrouter()
 	apiRouter.HandleFunc("/data", api.GetData)
