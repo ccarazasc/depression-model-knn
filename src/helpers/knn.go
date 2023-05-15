@@ -1,13 +1,14 @@
 package helpers
 
 import (
-	"github.com/reiver/go-porterstemmer"
 	"go-api/src/models"
 	"math"
 	"sort"
 	"strings"
 	"sync"
 	"unicode"
+
+	"github.com/reiver/go-porterstemmer"
 )
 
 type KNN struct {
@@ -17,12 +18,12 @@ type KNN struct {
 	postingsLock   sync.RWMutex
 	classes        map[string]int
 	classesLock    sync.RWMutex
-	rowsData      []*models.RowData
+	rowsData       []*models.RowData
 	documentsLock  sync.RWMutex
 }
 
 type Neighbour struct {
-	rowData   *models.RowData
+	rowData    *models.RowData
 	similarity float64
 }
 
@@ -34,15 +35,15 @@ func NewKNN() *KNN {
 func NewKNN2() *KNN {
 	var data models.Data
 	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/TA2-Concurrente/main/src/resources/dataset/Reporte_Proyecto_APROBADO.csv")
-	knn:=NewKNN()
+	knn := NewKNN()
 	knn.Training(data.Data[2:])
 	return knn
 }
 
 var isAlphaNum = func(c rune) bool { return !unicode.IsLetter(c) && !unicode.IsNumber(c) }
 
-func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto string, unidadProyecto string,tipo string,actividad string, fechaInicio string,descripcion string,longitud string,latitud string,resolucion string,label string, addTerms bool) *models.RowData {
-	rowData := &models.RowData{Id: id, Titular: titular, Ruc: ruc, TituloProyecto: tituloProyecto, UnidadProyecto: unidadProyecto, Tipo: tipo, Actividad: actividad, FechaInicio: fechaInicio, Estado: " ", Descripcion: descripcion, Longitud: longitud, Latitud: latitud, Resolucion: resolucion, Label: label, Terms: make(map[int]float64)}
+func (knn *KNN) newRowData(variance string, totalDistance string, movementTime string, averageSpeed string, testScore string, addTerms bool) *models.RowData {
+	rowData := &models.RowData{Variance: variance, TotalDistance: totalDistance, MovementTime: movementTime, AverageSpeed: averageSpeed, TestScore: testScore, Result: " ", Terms: make(map[int]float64)}
 	terms := make(map[int]int)
 
 	if addTerms {
@@ -51,10 +52,9 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 		knn.dictionaryLock.RLock()
 	}
 
-	for _, term := range strings.FieldsFunc(id, isAlphaNum) {
+	for _, term := range strings.FieldsFunc(variance, isAlphaNum) {
 		term = porterstemmer.StemString(term)
 		termId, ok := knn.dictionary[term]
-
 		if !ok {
 			if addTerms {
 				termId = len(knn.dictionary)
@@ -63,13 +63,11 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 				termId = -1
 			}
 		}
-
 		terms[termId]++
 	}
-	for _, term := range strings.FieldsFunc(titular, isAlphaNum) {
+	for _, term := range strings.FieldsFunc(totalDistance, isAlphaNum) {
 		term = porterstemmer.StemString(term)
 		termId, ok := knn.dictionary[term]
-
 		if !ok {
 			if addTerms {
 				termId = len(knn.dictionary)
@@ -78,13 +76,11 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 				termId = -1
 			}
 		}
-
 		terms[termId]++
 	}
-	for _, term := range strings.FieldsFunc(ruc, isAlphaNum) {
+	for _, term := range strings.FieldsFunc(movementTime, isAlphaNum) {
 		term = porterstemmer.StemString(term)
 		termId, ok := knn.dictionary[term]
-
 		if !ok {
 			if addTerms {
 				termId = len(knn.dictionary)
@@ -93,13 +89,11 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 				termId = -1
 			}
 		}
-
 		terms[termId]++
 	}
-	for _, term := range strings.FieldsFunc(tituloProyecto, isAlphaNum) {
+	for _, term := range strings.FieldsFunc(averageSpeed, isAlphaNum) {
 		term = porterstemmer.StemString(term)
 		termId, ok := knn.dictionary[term]
-
 		if !ok {
 			if addTerms {
 				termId = len(knn.dictionary)
@@ -108,13 +102,11 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 				termId = -1
 			}
 		}
-
 		terms[termId]++
 	}
-	for _, term := range strings.FieldsFunc(unidadProyecto, isAlphaNum) {
+	for _, term := range strings.FieldsFunc(testScore, isAlphaNum) {
 		term = porterstemmer.StemString(term)
 		termId, ok := knn.dictionary[term]
-
 		if !ok {
 			if addTerms {
 				termId = len(knn.dictionary)
@@ -123,145 +115,8 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 				termId = -1
 			}
 		}
-
 		terms[termId]++
 	}
-	for _, term := range strings.FieldsFunc(tipo, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(actividad, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(fechaInicio, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(descripcion, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(longitud, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(latitud, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(resolucion, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(label, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-	for _, term := range strings.FieldsFunc(resolucion, isAlphaNum) {
-		term = porterstemmer.StemString(term)
-		termId, ok := knn.dictionary[term]
-
-		if !ok {
-			if addTerms {
-				termId = len(knn.dictionary)
-				knn.dictionary[term] = termId
-			} else {
-				termId = -1
-			}
-		}
-
-		terms[termId]++
-	}
-
 	if addTerms {
 		knn.dictionaryLock.Unlock()
 	} else {
@@ -285,18 +140,17 @@ func (knn *KNN) newRowData(id string,titular string,ruc string, tituloProyecto s
 	return rowData
 }
 
-func (knn *KNN) Train(id string,titular string,ruc string, tituloProyecto string, unidadProyecto string,tipo string,actividad string, fechaInicio string,descripcion string,longitud string,latitud string,resolucion string,label string, estado string) {
-	rowData := knn.newRowData(id,titular ,ruc , tituloProyecto , unidadProyecto ,tipo ,actividad , fechaInicio ,descripcion ,longitud ,latitud ,resolucion ,label , true)
-
+func (knn *KNN) Train(variance string, totalDistance string, movementTime string, averageSpeed string, testScore string, result string) {
+	rowData := knn.newRowData(variance, totalDistance, movementTime, averageSpeed, testScore, true)
 
 	knn.classesLock.Lock()
 
-	if classId, ok := knn.classes[estado]; !ok {
+	if classId, ok := knn.classes[result]; !ok {
 		classId = len(knn.classes)
-		knn.classes[estado] = classId
+		knn.classes[result] = classId
 	}
 
-	rowData.EstadoId = knn.classes[estado]
+	rowData.ResultId = knn.classes[result]
 
 	knn.classesLock.Unlock()
 
@@ -320,8 +174,8 @@ func (n Neighbours) Len() int           { return len(n) }
 func (n Neighbours) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
 func (n Neighbours) Less(i, j int) bool { return n[i].similarity > n[j].similarity }
 
-func (knn *KNN) Predict(id string,titular string,ruc string, tituloProyecto string, unidadProyecto string,tipo string,actividad string, fechaInicio string,descripcion string,longitud string,latitud string,resolucion string,label string, k int) string {
-	rowData := knn.newRowData(id,titular,ruc,tituloProyecto,unidadProyecto,tipo,actividad,fechaInicio,descripcion,longitud,latitud,resolucion,label,false)
+func (knn *KNN) Predict(variance string, totalDistance string, movementTime string, averageSpeed string, testScore string, k int) string {
+	rowData := knn.newRowData(variance, totalDistance, movementTime, averageSpeed, testScore, false)
 
 	similarities := make(map[int]float64)
 
@@ -346,52 +200,52 @@ func (knn *KNN) Predict(id string,titular string,ruc string, tituloProyecto stri
 	// Sort neighbours by similarity
 	sort.Sort(neighbours)
 
-	estadoCount := make(map[int]int)
+	resultCount := make(map[int]int)
 
 	// Count classes in k first (or all) neighbours
 	for i := 0; i < k && i < len(neighbours); i++ {
-		estadoCount[neighbours[i].rowData.EstadoId] += 1
+		resultCount[neighbours[i].rowData.ResultId] += 1
 	}
 
-	estadoId := -1
+	resultId := -1
 	maxClassCount := 0
 
 	// Find the most popular class
-	for id, count := range estadoCount {
+	for id, count := range resultCount {
 		if count > maxClassCount {
-			estadoId = id
+			resultId = id
 			maxClassCount = count
 		}
 	}
 
-	estado := ""
+	result := ""
 
 	knn.classesLock.RLock()
 
 	// Find name of the most popular class
 	for c, i := range knn.classes {
-		if i == estadoId {
-			estado = c
+		if i == resultId {
+			result = c
 			break
 		}
 	}
 
 	knn.classesLock.RUnlock()
 
-	return estado
+	return result
 }
 
 func (knn *KNN) Predicciones(data []models.RowData) []models.RowData {
-	for d,_ := range data{
-		data[d].Estado = knn.Predict(data[d].Id,data[d].Titular,data[d].Ruc,data[d].TituloProyecto,data[d].UnidadProyecto,data[d].Tipo,data[d].Actividad,data[d].FechaInicio,data[d].Descripcion,data[d].Longitud,data[d].Latitud,data[d].Resolucion,data[d].Label,1)
+	for d, _ := range data {
+		data[d].Result = knn.Predict(data[d].Variance, data[d].TotalDistance, data[d].MovementTime, data[d].AverageSpeed, data[d].TestScore, 1)
 	}
 	println("Prediciendo...")
 	return data
 }
 
 func (knn *KNN) Training(data []models.RowData) *KNN {
-	for d,_ := range data{
-		knn.Train(data[d].Id,data[d].Titular,data[d].Ruc,data[d].TituloProyecto,data[d].UnidadProyecto,data[d].Tipo,data[d].Actividad,data[d].FechaInicio,data[d].Descripcion,data[d].Longitud,data[d].Latitud,data[d].Resolucion,data[d].Label,data[d].Estado)
+	for d, _ := range data {
+		knn.Train(data[d].Variance, data[d].TotalDistance, data[d].MovementTime, data[d].AverageSpeed, data[d].TestScore, data[d].Result)
 	}
 	println("Entrenado...")
 	return knn

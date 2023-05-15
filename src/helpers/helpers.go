@@ -23,14 +23,14 @@ func ReadCSVFromUrl(url string) (models.Data, error) {
 			log.Fatal(error)
 		}
 
-		if line[8] == "Aprobado" || line[8] == "Desaprobado" {
+		if line[5] == "Si" || line[5] == "No" {
 			data.Data = append(data.Data, models.RowData{
-				Varianza:          line[0],
-				DistanciaTotal:    line[1],
-				TiempoMovimiento:  line[2],
-				PromedioVelocidad: line[3],
-				PuntuaciónTest:    line[4],
-				Resultado:         line[5],
+				Variance:      line[0],
+				TotalDistance: line[1],
+				MovementTime:  line[2],
+				AverageSpeed:  line[3],
+				TestScore:     line[4],
+				Result:        line[5],
 			})
 		}
 	}
