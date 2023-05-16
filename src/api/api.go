@@ -32,9 +32,11 @@ func GetPredictData(res http.ResponseWriter, r *http.Request) {
 	log.Println("Body received:")
 	var rowDataJSON models.RowData
 	json.Unmarshal(body, &rowDataJSON)
+	log.Println(&rowDataJSON)
 	prediccion := knn.Prediccion(rowDataJSON)
 	jsonB, _ := json.Marshal(prediccion)
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
+	log.Println(prediccion)
 	res.Write(jsonB)
 }
