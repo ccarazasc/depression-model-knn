@@ -32,9 +32,18 @@ type Neighbours []Neighbour
 func NewKNN() *KNN {
 	return &KNN{dictionary: make(map[string]int), postings: make(map[int][]int), classes: make(map[string]int), rowsData: make([]*models.RowData, 0)}
 }
+
 func NewKNN2() *KNN {
 	var data models.Data
-	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/depression-model-knn/master/src/resources/data-f.csv")
+	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/depression-model-knn/master/src/resources/data-depression.csv")
+	knn := NewKNN()
+	knn.Training(data.Data[1:])
+	return knn
+}
+
+func NewKNN3() *KNN {
+	var data models.Data
+	data, _ = ReadCSVFromUrl("https://raw.githubusercontent.com/ccarazasc/depression-model-knn/master/src/resources/data-anxiety.csv")
 	knn := NewKNN()
 	knn.Training(data.Data[1:])
 	return knn

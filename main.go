@@ -18,8 +18,10 @@ func main() {
 
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api/").Subrouter()
-	apiRouter.HandleFunc("/data", api.GetData)
-	apiRouter.HandleFunc("/predict", api.GetPredictData)
+	apiRouter.HandleFunc("/data/depression", api.GetDataDepression)
+	apiRouter.HandleFunc("/predict/depression", api.GetPredictDataDepression)
+	apiRouter.HandleFunc("/data/anxiety", api.GetDataAnxiety)
+	apiRouter.HandleFunc("/predict/anxiety", api.GetPredictDataAnxiety)
 	fmt.Printf("Server running  at port %s", port)
 	http.ListenAndServe(":"+port, router)
 }
